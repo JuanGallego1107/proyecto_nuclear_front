@@ -8,6 +8,7 @@ import CustomInput from '@/modules/common/components/CustomInput.vue'
 import { createUpdateParkingAction } from '@/modules/parking_lots/actions/create-update-product.action'
 import { useToast } from 'vue-toastification'
 
+// Form Validation schema
 const validationSchema = yup.object({
   name: yup
     .string()
@@ -31,18 +32,19 @@ const validationSchema = yup.object({
 
 export default defineComponent({
   components: {
-    CustomInput,
+    CustomInput, // Custom input component for form fields
   },
   props: {
     parkingId: {
       type: String,
-      required: true,
+      required: true, // parkingId is a required prop
     },
   },
   setup(props) {
-    const router = useRouter()
-    const toast = useToast()
+    const router = useRouter() // Router instance to navigate
+    const toast = useToast() // Toast notifications for success/error messages
 
+    // Query to fetch parking details using the parkingId prop
     const {
       data: parking,
       isError,
@@ -50,23 +52,26 @@ export default defineComponent({
     } = useQuery({
       queryKey: ['parking', props.parkingId],
       queryFn: () => getParkingById(props.parkingId),
-      retry: false,
+      retry: false, // Disable retries
     })
 
+    // Mutation for creating or updating the parking record
     const {
       mutate,
       isPending,
       isSuccess: isUpdateSucess,
       data: updateParking,
     } = useMutation({
-      mutationFn: createUpdateParkingAction,
+      mutationFn: createUpdateParkingAction, // Action to create/update parking data
     })
 
+    // Form setup using vee-validate
     const { values, defineField, errors, handleSubmit, resetForm, meta } =
       useForm({
-        validationSchema,
+        validationSchema, // Attach the validation schema to the form
       })
 
+    // Define fields for name, address, phone number, NIT, and coordinates
     const [name, nameAttrs] = defineField('name')
     const [address, addressAttrs] = defineField('address')
     const [phone_number, phoneNumberAttrs] = defineField('phone_number')
@@ -74,41 +79,45 @@ export default defineComponent({
     const [coord_x, coordXAttrs] = defineField('coord_x')
     const [coord_y, coordYAttrs] = defineField('coord_y')
 
+    // Define a field array for images
     const { fields: images } = useFieldArray<string>('images')
 
+    // Handle form submission
     const onSubmit = handleSubmit(values => {
-      mutate(values)
+      mutate(values) // Trigger the mutation to create/update the parking record
     })
 
-    // Validate if the parking lot was obtained correctly
+    // Watch for error state and redirect if fetching fails
     watchEffect(() => {
       if (isError.value && !isLoading.value) {
-        router.replace('/admin/parkings')
+        router.replace('/admin/parkings') // Redirect to parking list if error occurs
       }
     })
 
+    // Watch for parking data changes and reset form values when data is fetched
     watch(
       parking,
       () => {
-        if (!parking.value) return
+        if (!parking.value) return // Do nothing if parking data is not available
         resetForm({
-          values: parking.value,
+          values: parking.value, // Reset form with the fetched parking data
         })
       },
       {
-        deep: true,
-        immediate: true,
+        deep: true, // Watch for deep changes in the parking data
+        immediate: true, // Trigger immediately when the component is mounted
       },
     )
 
+    // Watch for update success and handle redirection and success message
     watch(isUpdateSucess, value => {
-      if (!value) return
+      if (!value) return // Do nothing if update has not been successful
 
-      toast.success('Parqueadero actualizado correctamente')
-      router.replace(`/parking-admin/parking/${updateParking.value!.id}`)
+      toast.success('Parqueadero actualizado correctamente') // Show success message
+      router.replace(`/parking-admin/parking/${updateParking.value!.id}`) // Redirect to the updated parking page
 
       resetForm({
-        values: updateParking.value,
+        values: updateParking.value, // Reset form with the updated parking data
       })
     })
 
@@ -130,11 +139,11 @@ export default defineComponent({
       coord_y,
       coordYAttrs,
 
-      images,
+      images, // Expose the images field array for the form
 
-      isPending,
+      isPending, // Expose isPending to manage the loading state
 
-      onSubmit,
+      onSubmit, // Expose onSubmit for the form submission
     }
   },
 })

@@ -135,7 +135,7 @@ watch(
     <p>Espere por favor</p>
   </div>
 
-  <!-- Product List -->
+  <!-- Parking lots List -->
   <ParkingLotList v-else :parkingLots="parkingLots" />
 
   <ButtonPagination

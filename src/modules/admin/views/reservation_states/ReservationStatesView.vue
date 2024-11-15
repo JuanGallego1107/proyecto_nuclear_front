@@ -14,11 +14,13 @@ const toast = useToast()
 const queryClient = useQueryClient()
 const page = ref(Number(route.query.page || 1))
 
+// Fetching reservation states data with vue-query
 const { data: reservationStates = [] } = useQuery({
   queryKey: ['reservationStates', { page: page }],
   queryFn: () => getReservationStateAction(page.value),
 })
 
+// Prefetch data for the next page for smoother navigation
 watchEffect(() => {
   queryClient.prefetchQuery({
     queryKey: ['reservationStates', { page: page.value + 1 }],
@@ -26,12 +28,12 @@ watchEffect(() => {
   })
 })
 
-// Function to handle deletion
+// Function to handle deletion of a reservation state
 const handleDelete = async (stateId: number) => {
   try {
     await deleteReservationStateById(stateId)
     toast.success('Estado de reserva eliminado correctamente')
-    // Invalidate and refetch the payment methods list
+    // Invalidate and refetch reservation states list
     queryClient.invalidateQueries(['reservationStates'])
   } catch (error) {
     toast.error('Error al eliminar el estado de reserva')
@@ -78,6 +80,7 @@ const handleDelete = async (stateId: number) => {
             </tr>
           </thead>
           <tbody class="text-gray-700">
+            <!-- Iterating through reservation states -->
             <tr v-for="state in reservationStates" :key="state.id">
               <td class="w-1/3 text-left py-3 px-4">
                 <RouterLink
@@ -110,6 +113,7 @@ const handleDelete = async (stateId: number) => {
         </table>
       </div>
     </div>
+    <!-- Pagination component -->
     <ButtonPagination
       :page="page"
       :has-more-data="!!reservationStates && reservationStates.length < 10"

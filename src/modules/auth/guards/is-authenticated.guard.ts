@@ -1,5 +1,6 @@
 import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
 
+// Route Guard for authorization
 const isAuthenticatedGuard = async (
   to: RouteLocationNormalized,
   from: RouteLocationNormalized,

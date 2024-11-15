@@ -17,18 +17,20 @@ import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { getFeesByParkingId } from '@/modules/fees/actions/get-fees.action'
 import { deleteFeeById } from '@/modules/fees/actions/delete-fee.action'
 
-const route = useRoute()
-const queryClient = useQueryClient()
-const authUser = useAuthStore()
-const toast = useToast()
-const page = ref(Number(route.query.page || 1))
+const route = useRoute() // Access the current route
+const queryClient = useQueryClient() // Vue Query client for query invalidation and prefetching
+const authUser = useAuthStore() // Auth store to get the user information
+const toast = useToast() // Toast notification service for feedback
+const page = ref(Number(route.query.page || 1)) // Current page for pagination
 
+// Fetch fees by parking lot ID
 const { data: fees = [] } = useQuery({
-  queryKey: ['fees', { page: page }],
+  queryKey: ['fees', { page: page }], // Unique query key for fees
   queryFn: () =>
-    getFeesByParkingId(page.value, authUser.user?.id_parking_lot ?? 1),
+    getFeesByParkingId(page.value, authUser.user?.id_parking_lot ?? 1), // Fetch data with parking lot ID
 })
 
+// Prefetch next page of fees for smooth pagination
 watchEffect(() => {
   queryClient.prefetchQuery({
     queryKey: ['fees', { page: page.value + 1 }],
@@ -37,14 +39,14 @@ watchEffect(() => {
   })
 })
 
-// Function to handle deletion
+// Function to handle deletion of a fee
 const handleDelete = async (feeId: number) => {
   try {
-    await deleteFeeById(feeId)
-    toast.success('Tarifa eliminada correctamente')
-    queryClient.invalidateQueries(['fees'])
+    await deleteFeeById(feeId) // Call the deletion API action
+    toast.success('Tarifa eliminada correctamente') // Show success toast
+    queryClient.invalidateQueries(['fees']) // Invalidate query to refetch the list
   } catch (error) {
-    toast.error('Error al eliminar la tarifa')
+    toast.error('Error al eliminar la tarifa') // Show error toast on failure
   }
 }
 </script>
@@ -97,11 +99,14 @@ const handleDelete = async (feeId: number) => {
                   class="hover:text-blue-500 hover:underline"
                 >
                   {{ fee.name }}
+                  <!-- Link to fee details -->
                 </RouterLink>
               </td>
               <td class="text-left py-3 px-4">
                 <FontAwesomeIcon :icon="faDollar" />
+                <!-- Dollar icon for cost -->
                 {{ `${fee.cost}` }}
+                <!-- Display fee cost -->
               </td>
               <td class="text-left py-3 px-4">
                 <FontAwesomeIcon
@@ -111,6 +116,7 @@ const handleDelete = async (feeId: number) => {
                   class="mr-1"
                 />
                 {{ `${fee.vehicle_type.name}` }}
+                <!-- Display vehicle type -->
               </td>
               <td class="text-left py-3 px-4 flex space-x-2">
                 <RouterLink :to="`/parking-admin/fees/${fee.id}`">
@@ -119,6 +125,7 @@ const handleDelete = async (feeId: number) => {
                     title="Editar"
                   >
                     <FontAwesomeIcon :icon="faEdit" />
+                    <!-- Edit button -->
                   </button>
                 </RouterLink>
                 <button
@@ -127,6 +134,7 @@ const handleDelete = async (feeId: number) => {
                   title="Eliminar"
                 >
                   <FontAwesomeIcon :icon="faTrash" />
+                  <!-- Trash icon for deletion -->
                 </button>
               </td>
             </tr>
@@ -134,6 +142,7 @@ const handleDelete = async (feeId: number) => {
         </table>
       </div>
     </div>
+    <!-- Pagination component -->
     <ButtonPagination
       :page="page"
       :has-more-data="!!fees && fees.length < 10"

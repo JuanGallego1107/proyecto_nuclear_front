@@ -6,13 +6,11 @@ export const createUpdateFeeAction = async (fee: Partial<Fee>) => {
 
   fee = cleanFeeForCreateUpdate(fee)
 
-  console.log(fee)
-
   if (feeId && feeId !== null) {
     return await updateFee(feeId, fee)
   }
 
-  // Crear parqueadero
+  // Create fee
   return await createFee(fee)
 }
 

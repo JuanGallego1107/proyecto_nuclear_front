@@ -1,6 +1,7 @@
 import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
 import { useAuthStore } from '../stores/auth.store'
 
+// Route Guard for administration users
 const isAdminGuard = async (
   to: RouteLocationNormalized,
   from: RouteLocationNormalized,

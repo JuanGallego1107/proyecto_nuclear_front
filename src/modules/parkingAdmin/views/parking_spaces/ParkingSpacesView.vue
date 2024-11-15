@@ -10,32 +10,43 @@ import { getParkingSpacesByParkingId } from '@/modules/parking_spaces/actions/ge
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { deleteParkingSpaceById } from '@/modules/parking_spaces/actions/delete-parking-space.action'
 
+// Access current route information (used for pagination)
 const route = useRoute()
+// Create an instance of the query client for managing cache
 const queryClient = useQueryClient()
+// Access user authentication data (user's parking lot info)
 const authUser = useAuthStore()
+// Toast notifications for success/error messages
 const toast = useToast()
+// Set the initial page based on the query parameter or default to 1
 const page = ref(Number(route.query.page || 1))
 
+// Query to fetch parking spaces for the current parking lot and page
 const { data: parkingSpaces = [] } = useQuery({
+  // Cache key based on page number
   queryKey: ['parkingSpaces', { page: page }],
   queryFn: () =>
+    // Fetch parking spaces for the specific parking lot
     getParkingSpacesByParkingId(page.value, authUser.user?.id_parking_lot ?? 1),
 })
 
+// Pre-fetch the next page of parking spaces for smooth pagination
 watchEffect(() => {
   queryClient.prefetchQuery({
-    queryKey: ['parkingSpaces', { page: page.value + 1 }],
+    queryKey: ['parkingSpaces', { page: page.value + 1 }], // Pre-fetch the next page based on the current page
     queryFn: () =>
       getParkingSpacesByParkingId(
         page.value + 1,
+        // Use current parking lot ID for the query
         authUser.user?.id_parking_lot ?? 1,
       ),
   })
 })
 
-// Function to handle deletion
+// Function to handle deletion of a parking space
 const handleDelete = async (spaceId: number) => {
   try {
+    // Attempt to delete the parking space by its ID
     await deleteParkingSpaceById(spaceId)
     toast.success('Espacio de parqueadero eliminado correctamente')
     queryClient.invalidateQueries(['parkingSpaces'])

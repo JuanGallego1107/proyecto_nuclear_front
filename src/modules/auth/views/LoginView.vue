@@ -59,47 +59,56 @@
 </template>
 
 <script lang="ts" setup>
+// Import necessary modules and libraries
 import { reactive, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth.store'
 import { useToast } from 'vue-toastification'
 
+// Initialize router, auth store, and toast notifications
 const router = useRouter()
-
 const authStore = useAuthStore()
 const toast = useToast()
 
+// References to input fields for email and password
 const emailInputRef = ref<HTMLInputElement | null>(null)
 const passwordInputRef = ref<HTMLInputElement | null>(null)
 
+// Reactive object for form data
 const myForm = reactive({
   email: '',
   password: '',
   rememberMe: false,
 })
 
+// Login function to authenticate the user
 const onLogin = async () => {
+  // Validate email field
   if (myForm.email === '') {
     return emailInputRef.value?.focus()
   }
 
+  // Validate password field (min length of 6)
   if (myForm.password.length < 6) {
     return passwordInputRef.value?.focus()
   }
 
+  // Handle remember me functionality (save email to localStorage)
   if (myForm.rememberMe) {
     localStorage.setItem('email', myForm.email)
   } else {
     localStorage.removeItem('email')
   }
 
+  // Attempt to log in using the auth store
   const ok = await authStore.login(myForm.email, myForm.password)
 
+  // If login is unsuccessful, show error message
   if (ok) return
-
   toast.error('Usuario/Contraseña no son correctos')
 }
 
+// Watch for changes to localStorage and pre-fill form if needed
 watchEffect(() => {
   const email = localStorage.getItem('email')
   if (email) {

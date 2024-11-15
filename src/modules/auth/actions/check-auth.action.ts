@@ -8,9 +8,12 @@ interface CheckSuccess {
   ok: true
 }
 
+// Validate authorization status of user
 export const checkAuthAction = async (): Promise<CheckError | CheckSuccess> => {
   try {
+    // Get authorization token from local storage
     const localToken = localStorage.getItem('email')
+
     if (localToken && localToken.length < 10) {
       return { ok: false }
     }

@@ -1,6 +1,7 @@
 import { backendApi } from '@/api/backendApi'
 import type { ReservationState } from '../interfaces/reservation-states.interface'
 
+// Function to get reservation states by http
 export const getReservationStateAction = async (page: number = 1) => {
   try {
     const { data } =

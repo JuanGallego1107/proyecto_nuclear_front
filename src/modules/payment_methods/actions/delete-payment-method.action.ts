@@ -1,5 +1,6 @@
 import { backendApi } from '@/api/backendApi'
 
+// Action to delete payment methos by id
 export const deletePaymentMethodById = async (paymentMethodId: number) => {
   try {
     await backendApi.delete(`/payment-methods/${paymentMethodId}`)

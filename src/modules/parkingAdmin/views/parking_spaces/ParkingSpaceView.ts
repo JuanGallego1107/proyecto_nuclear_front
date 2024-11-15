@@ -8,6 +8,7 @@ import { useToast } from 'vue-toastification'
 import { getParkingSpaceById } from '@/modules/parking_spaces/actions/get-parking-space-by-id.action'
 import { createUpdateParkingSpaceAction } from '@/modules/parking_spaces/actions/create-update-parking-space.action'
 
+// Form validation schema
 const validationSchema = yup.object({
   space_number: yup
     .string()

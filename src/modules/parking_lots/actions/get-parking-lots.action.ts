@@ -6,16 +6,21 @@ export const getParkingLotsAction = async (
   limit: number = 10,
 ) => {
   try {
+    // Make an API request to fetch a list of parking lots with pagination
     const { data } = await backendApi.get<ParkingLot[]>(
       `/parking-lots?page=${page}`,
     )
 
+    // Log the fetched data for debugging purposes
     console.log(data)
 
+    // Return the fetched parking lot data
     return data
   } catch (error) {
+    // Log any errors that occur during the API request
     console.log(error)
 
+    // Throw an error if the request fails
     throw new Error('Error while fetching parking lots')
   }
 }

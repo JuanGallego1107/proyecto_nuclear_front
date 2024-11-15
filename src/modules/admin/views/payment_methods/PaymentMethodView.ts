@@ -8,6 +8,7 @@ import { useToast } from 'vue-toastification'
 import { getPaymentMethodById } from '@/modules/payment_methods/actions/get-payment-method-by-id.action'
 import { createUpdatePaymentMethodAction } from '@/modules/payment_methods/actions/create-update-payment-method.action'
 
+// Validation schema for form input using Yup
 const validationSchema = yup.object({
   name: yup
     .string()
@@ -29,6 +30,7 @@ export default defineComponent({
     const router = useRouter()
     const toast = useToast()
 
+    // Fetch the payment method data by ID
     const {
       data: payment,
       isError,
@@ -39,6 +41,7 @@ export default defineComponent({
       retry: false,
     })
 
+    // Mutation function to create or update the payment method
     const {
       mutate,
       isPending,
@@ -48,6 +51,7 @@ export default defineComponent({
       mutationFn: createUpdatePaymentMethodAction,
     })
 
+    // Setup form state and validation using vee-validate
     const { values, defineField, errors, handleSubmit, resetForm, meta } =
       useForm({
         validationSchema,
@@ -55,16 +59,19 @@ export default defineComponent({
 
     const [name, nameAttrs] = defineField('name')
 
+    // Handle form submission
     const onSubmit = handleSubmit(values => {
       mutate(values)
     })
 
+    // Redirect if there is an error fetching the payment method data
     watchEffect(() => {
       if (isError.value && !isLoading.value) {
         router.replace('/admin/payment-methods')
       }
     })
 
+    // Populate form fields when payment data is loaded
     watch(
       payment,
       () => {
@@ -79,6 +86,7 @@ export default defineComponent({
       },
     )
 
+    // Handle successful updates
     watch(isUpdateSucess, value => {
       if (!value) return
 

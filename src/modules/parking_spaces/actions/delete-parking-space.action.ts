@@ -1,5 +1,6 @@
 import { backendApi } from '@/api/backendApi'
 
+// Action to delete parking space by id
 export const deleteParkingSpaceById = async (spaceId: number) => {
   try {
     await backendApi.delete(`/parking-spaces/${spaceId}`)

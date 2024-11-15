@@ -9,16 +9,22 @@ import { getPaymentMethodsAction } from '@/modules/payment_methods/actions/get-p
 import { useToast } from 'vue-toastification'
 import { deletePaymentMethodById } from '@/modules/payment_methods/actions/delete-payment-method.action'
 
+// Get the current route to handle pagination
 const route = useRoute()
+// Client to manage queries using vue-query
 const queryClient = useQueryClient()
+// Utility for displaying toast notifications
 const toast = useToast()
+// Reference to handle page number from the URL
 const page = ref(Number(route.query.page || 1))
 
+// Query to fetch payment methods, data is reactive
 const { data: paymentMethods = [] } = useQuery({
   queryKey: ['paymentMethods', { page: page }],
   queryFn: () => getPaymentMethodsAction(page.value),
 })
 
+// Prefetch the next page of payment methods when the current page changes
 watchEffect(() => {
   queryClient.prefetchQuery({
     queryKey: ['paymentMethods', { page: page.value + 1 }],
@@ -26,15 +32,15 @@ watchEffect(() => {
   })
 })
 
-// Function to handle deletion
+// Function to handle the deletion of a payment method
 const handleDelete = async (paymentMethodId: number) => {
   try {
     await deletePaymentMethodById(paymentMethodId)
-    toast.success('Método de pago eliminado correctamente')
+    toast.success('Payment method deleted successfully')
     // Invalidate and refetch the payment methods list
     queryClient.invalidateQueries(['paymentMethods'])
   } catch (error) {
-    toast.error('Error al eliminar el método de pago')
+    toast.error('Error deleting the payment method')
   }
 }
 </script>
@@ -43,13 +49,14 @@ const handleDelete = async (paymentMethodId: number) => {
   <div class="bg-white px-5 py-2 rounded">
     <div class="flex justify-between items-center">
       <h1 class="text-3xl">
-        Métodos de pago <small class="text-blue-500"></small>
+        Payment Methods <small class="text-blue-500"></small>
       </h1>
+      <!-- Button to create a new payment method -->
       <RouterLink to="/admin/payment-methods/create">
         <button
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         >
-          <FontAwesomeIcon :icon="faPlus" class="mr-2" /> Crear método de pago
+          <FontAwesomeIcon :icon="faPlus" class="mr-2" /> Create Payment Method
         </button>
       </RouterLink>
     </div>
@@ -59,24 +66,26 @@ const handleDelete = async (paymentMethodId: number) => {
         <table class="min-w-full bg-white">
           <thead class="bg-gray-800 text-white">
             <tr>
+              <!-- Table headers -->
               <th
                 class="w-1/3 text-left py-3 px-4 uppercase font-semibold text-sm"
               >
-                Nombre
+                Name
               </th>
               <th
                 class="w-1/3 text-left py-3 px-4 uppercase font-semibold text-sm"
               >
-                Estado
+                Status
               </th>
               <th
                 class="w-1/3 text-left py-3 px-4 uppercase font-semibold text-sm"
               >
-                Acciones
+                Actions
               </th>
             </tr>
           </thead>
           <tbody class="text-gray-700">
+            <!-- Render list of payment methods -->
             <tr v-for="payment in paymentMethods" :key="payment.id">
               <td class="w-1/3 text-left py-3 px-4">
                 <RouterLink
@@ -86,20 +95,22 @@ const handleDelete = async (paymentMethodId: number) => {
                   {{ payment.name }}
                 </RouterLink>
               </td>
-              <td class="text-left py-3 px-4">Activo</td>
+              <td class="text-left py-3 px-4">Active</td>
               <td class="text-left py-3 px-4 flex space-x-2">
+                <!-- Button to edit -->
                 <RouterLink :to="`/admin/payment-methods/${payment.id}`">
                   <button
                     class="text-blue-500 hover:text-blue-700"
-                    title="Editar"
+                    title="Edit"
                   >
                     <FontAwesomeIcon :icon="faEdit" />
                   </button>
                 </RouterLink>
+                <!-- Button to delete -->
                 <button
                   @click="handleDelete(payment.id)"
                   class="text-red-500 hover:text-red-700"
-                  title="Eliminar"
+                  title="Delete"
                 >
                   <FontAwesomeIcon :icon="faTrash" />
                 </button>
@@ -109,6 +120,7 @@ const handleDelete = async (paymentMethodId: number) => {
         </table>
       </div>
     </div>
+    <!-- Pagination component -->
     <ButtonPagination
       :page="page"
       :has-more-data="!!paymentMethods && paymentMethods.length < 10"

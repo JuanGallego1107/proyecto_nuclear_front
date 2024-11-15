@@ -10,39 +10,50 @@ import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { getAdditionalServiceByParkingId } from '@/modules/additional_services/actions/get-additional-services.action'
 import { deleteAdditionalServiceById } from '@/modules/additional_services/actions/delete-additional-service.action'
 
+// Access current route information
 const route = useRoute()
+// Query client instance to manage cache and invalidate queries
 const queryClient = useQueryClient()
+// Get the authenticated user's details from the store
 const authUser = useAuthStore()
+// Toast notification system to show success or error messages
 const toast = useToast()
+// Reactive variable for page number (default to 1 if not set in query)
 const page = ref(Number(route.query.page || 1))
 
+// Fetch additional services data using vue-query
 const { data: additionalServices = [] } = useQuery({
-  queryKey: ['additionalServices', { page: page }],
+  queryKey: ['additionalServices', { page: page }], // Unique query key
   queryFn: () =>
     getAdditionalServiceByParkingId(
       page.value,
-      authUser.user?.id_parking_lot ?? 1,
+      authUser.user?.id_parking_lot ?? 1, // Use the user's parking lot ID or fallback to 1
     ),
 })
 
+// Prefetch next page of additional services when the current page changes
 watchEffect(() => {
   queryClient.prefetchQuery({
     queryKey: ['additionalServices', { page: page.value + 1 }],
     queryFn: () =>
       getAdditionalServiceByParkingId(
         page.value + 1,
-        authUser.user?.id_parking_lot ?? 1,
+        authUser.user?.id_parking_lot ?? 1, // Use the user's parking lot ID or fallback to 1
       ),
   })
 })
 
-// Function to handle deletion
+// Function to handle deletion of an additional service
 const handleDelete = async (serviceId: number) => {
   try {
+    // Call the API to delete the additional service
     await deleteAdditionalServiceById(serviceId)
+    // Show success toast
     toast.success('Servicio adicional eliminado correctamente')
+    // Invalidate and refetch the additional services data
     queryClient.invalidateQueries(['additionalServices'])
   } catch (error) {
+    // Show error toast if deletion fails
     toast.error('Error al eliminar el servicio adicional')
   }
 }

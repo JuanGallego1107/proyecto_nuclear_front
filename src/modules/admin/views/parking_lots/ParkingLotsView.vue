@@ -14,11 +14,13 @@ const toast = useToast()
 const queryClient = useQueryClient()
 const page = ref(Number(route.query.page || 1))
 
+// Initialize tanstack usage for parking lot list
 const { data: parkings = [] } = useQuery({
   queryKey: ['parkingLots', { page: page }],
   queryFn: () => getParkingLotsAction(page.value),
 })
 
+// Validate the cache info to get parking lot list
 watchEffect(() => {
   queryClient.prefetchQuery({
     queryKey: ['parkingLots', { page: page.value + 1 }],
@@ -26,14 +28,17 @@ watchEffect(() => {
   })
 })
 
-// Function to handle deletion
+// Function to handle delete operation
 const handleDelete = async (parkingId: number) => {
   try {
+    // Action to delete parking lot by id
     await deleteParkingLotById(parkingId)
+    // Success message
     toast.success('Parqueadero eliminado correctamente')
-    // Invalidate and refetch the payment methods list
+    // Invalidate and refetch the parking lot list
     queryClient.invalidateQueries(['parkingLots'])
   } catch (error) {
+    // Error message
     toast.error('Error al eliminar el parqueadero')
   }
 }
@@ -42,9 +47,11 @@ const handleDelete = async (parkingId: number) => {
 <template>
   <div class="bg-white px-5 py-2 rounded">
     <div class="flex justify-between items-center">
+      <!-- Title -->
       <h1 class="text-3xl">
         Parqueaderos <small class="text-blue-500"></small>
       </h1>
+      <!-- Create button -->
       <RouterLink to="/admin/parkings/create">
         <button
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
@@ -57,6 +64,7 @@ const handleDelete = async (parkingId: number) => {
     <hr class="my-4" />
     <div class="py-8 w-full">
       <div class="shadow overflow-hidden rounded border-b border-gray-200">
+        <!-- Parking lots table -->
         <table class="min-w-full bg-white">
           <thead class="bg-gray-800 text-white">
             <tr>
@@ -108,6 +116,7 @@ const handleDelete = async (parkingId: number) => {
               <td class="text-left py-3 px-4">
                 {{ parking.coord_y }}
               </td>
+              <!-- Button funcionalities to delete and delete parking lots -->
               <td class="text-left py-3 px-4 flex space-x-2">
                 <RouterLink :to="`/admin/parkings/${parking.id}`">
                   <button

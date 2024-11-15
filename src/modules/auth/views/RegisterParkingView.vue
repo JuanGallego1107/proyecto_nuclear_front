@@ -4,11 +4,12 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth.store'
 import { useToast } from 'vue-toastification'
 
+// Initialize router, auth store, and toast notifications
 const router = useRouter()
-
 const authStore = useAuthStore()
 const toast = useToast()
 
+// References to input fields for each form field
 const nameInputRef = ref<HTMLInputElement | null>(null)
 const addressInputRef = ref<HTMLInputElement | null>(null)
 const phoneNumberInputRef = ref<HTMLInputElement | null>(null)
@@ -16,6 +17,7 @@ const nitInputRef = ref<HTMLInputElement | null>(null)
 const latInputRef = ref<HTMLInputElement | null>(null)
 const lngInputRef = ref<HTMLInputElement | null>(null)
 
+// Reactive object for the parking registration form
 const myForm = reactive({
   name: '',
   address: '',
@@ -25,31 +27,39 @@ const myForm = reactive({
   lng: '',
 })
 
+// Function to handle parking registration form submission
 const onRegisterParking = async () => {
+  // Validate if the name field is filled
   if (myForm.name === '') {
     return nameInputRef.value?.focus()
   }
 
+  // Validate if the address field is filled
   if (myForm.address === '') {
     return addressInputRef.value?.focus()
   }
 
+  // Validate if the phone number field is filled
   if (myForm.phoneNumber === '') {
     return phoneNumberInputRef.value?.focus()
   }
 
+  // Validate if the NIT field is filled
   if (myForm.nit === '') {
     return nitInputRef.value?.focus()
   }
 
+  // Validate if the latitude field is filled
   if (myForm.lat === '') {
     return latInputRef.value?.focus()
   }
 
+  // Validate if the longitude field is filled
   if (myForm.lng === '') {
     return lngInputRef.value?.focus()
   }
 
+  // Call the store action to register the parking
   const ok = await authStore.registerParking(
     myForm.name,
     myForm.address,
@@ -59,6 +69,7 @@ const onRegisterParking = async () => {
     myForm.lng,
   )
 
+  // If registration is unsuccessful, show an error toast
   if (ok) return
 
   toast.error('Registro de parqueadero fallido')

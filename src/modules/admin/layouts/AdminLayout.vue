@@ -3,19 +3,20 @@ import { ref } from 'vue'
 import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import {
   faBars,
-  faChevronLeft,
   faCalendarCheck,
   faCar,
   faCreditCard,
   faTachometerAlt,
   faUsers,
-  faChevronRight,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 const authStore = useAuthStore()
+
+// Reactive var to handle sideBar status
 const isSidebarOpen = ref(true)
 
+// Change sidebar status
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value
 }

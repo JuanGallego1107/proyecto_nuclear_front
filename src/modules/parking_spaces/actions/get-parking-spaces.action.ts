@@ -6,6 +6,7 @@ export const getParkingSpacesByParkingId = async (
   parkingId: number,
 ) => {
   try {
+    // Make a GET request to fetch parking spaces based on parkingId
     const { data } = await backendApi.get<ParkingSpace[]>(
       `/parking-spaces-by-parking/${parkingId}`,
     )
@@ -14,6 +15,7 @@ export const getParkingSpacesByParkingId = async (
       ...data,
     }
   } catch (error) {
+    // Throw an error if the request fails
     throw new Error(`Error getting parking spaces`)
   }
 }

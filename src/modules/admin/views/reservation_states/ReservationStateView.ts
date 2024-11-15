@@ -8,14 +8,15 @@ import { useToast } from 'vue-toastification'
 import { getReservationStateById } from '../../../reservation_states/actions/get-reservation-state-by-id.action'
 import { createUpdateReservationStateAction } from '@/modules/reservation_states/actions/create-update-reservation-state.action'
 
+// Define validation schema using yup
 const validationSchema = yup.object({
   name: yup
     .string()
-    .required('El nombre es obligatorio')
-    .min(3, 'Debe tener al menos 3 caracteres'),
+    .required('El nombre es obligatorio') // Required validation
+    .min(3, 'Debe tener al menos 3 caracteres'), // Minimum length validation
 })
 
-// Define the props interface
+// Define props interface
 interface Props {
   stateId: string
 }
@@ -34,6 +35,7 @@ export default defineComponent({
     const router = useRouter()
     const toast = useToast()
 
+    // Query to fetch state details by ID
     const {
       data: state,
       isError,
@@ -44,6 +46,7 @@ export default defineComponent({
       retry: false,
     })
 
+    // Mutation to update reservation state
     const {
       mutate,
       isPending,
@@ -53,23 +56,28 @@ export default defineComponent({
       mutationFn: createUpdateReservationStateAction,
     })
 
+    // Form handling setup with validation
     const { values, defineField, errors, handleSubmit, resetForm, meta } =
       useForm({
         validationSchema,
       })
 
+    // Define field for name input
     const [name, nameAttrs] = defineField('name')
 
+    // Form submit handler
     const onSubmit = handleSubmit(values => {
       mutate(values)
     })
 
+    // Watch for errors and navigate back if query fails
     watchEffect(() => {
       if (isError.value && !isLoading.value) {
         router.replace('/admin/reservation-states')
       }
     })
 
+    // Watch for state data changes and reset form values accordingly
     watch(
       state,
       () => {
@@ -84,12 +92,14 @@ export default defineComponent({
       },
     )
 
+    // Watch for successful update and navigate to updated reservation state
     watch(isUpdateSuccess, value => {
       if (!value) return
 
-      toast.success('Método de pago actualizado correctamente')
+      toast.success('Estado de reserva actualizado correctamente')
       router.replace(`/admin/reservation-states/${updateState.value!.id}`)
 
+      // Reset form with updated state values
       resetForm({
         values: updateState.value,
       })
