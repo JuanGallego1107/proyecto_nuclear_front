@@ -1,146 +1,93 @@
 <script lang="ts" setup>
-import ButtonPagination from '@/modules/common/components/ButtonPagination.vue'
-import InteractiveMap from '@/modules/common/components/InteractiveMap.vue'
-import { getParkingLotsAction } from '@/modules/parking_lots/actions/get-parking-lots.action'
-import ParkingLotList from '@/modules/parking_lots/components/ParkingLotList.vue'
-import { useQuery } from '@tanstack/vue-query'
-import { ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import ButtonPagination from '@/modules/common/components/ButtonPagination.vue';
+import InteractiveMap from '@/modules/common/components/InteractiveMap.vue';
+import ParkingLotList from '@/modules/parking_lots/components/ParkingLotList.vue';
+import { getParkingLotsAction } from '@/modules/parking_lots/actions/get-parking-lots.action';
+import { getReservationsByNumber } from '@/modules/reservations/actions/get-reservations-by-customer.action';
+import { useQuery } from '@tanstack/vue-query';
+import { ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import type { Reservation } from '@/modules/reservations/interfaces/reservation.interface';
+import ReservationCardList from '../components/ReservationCardList.vue';
 
-const route = useRoute()
-const page = ref(Number(route.query.page || 1))
+const route = useRoute();
+const page = ref(Number(route.query.page || 1));
+const searchQuery = ref(''); // Campo de búsqueda
+const reservations = ref<Reservation[]>([]); // Resultado de las reservaciones
+const isLoadingReservations = ref(false); // Estado de carga de las reservaciones
 
+// Obtener lista de parqueaderos
 const { data: parkingLots = [], isLoading } = useQuery({
   queryKey: ['parkingLots', { page: page }],
   queryFn: () => getParkingLotsAction(page.value),
-})
+});
 
-watch(
-  () => route.query.page,
-  newPage => {
-    page.value = Number(newPage || 1)
-  },
-)
+watch(() => route.query.page, (newPage) => {
+  page.value = Number(newPage || 1);
+});
+
+// Función para buscar reservaciones por cliente
+const searchReservations = async () => {
+  if (!searchQuery.value) return; // No buscar si no hay query
+  isLoadingReservations.value = true;
+  try {
+    const data = await getReservationsByNumber(searchQuery.value);
+    reservations.value = Array.isArray(data) ? data : Object.values(data);
+    console.log('Reservaciones recibidas:', reservations.value);
+  } catch (error) {
+    console.error('Error fetching reservations:', error);
+  } finally {
+    isLoadingReservations.value = false;
+  }
+};
 </script>
 
 <template>
   <!-- Title -->
   <div class="pt-32 bg-white">
-    <h1 class="text-center text-2xl font-bold text-gray-800">
-      Todos los parqueaderos
-    </h1>
+    <h1 class="text-center text-2xl font-bold text-gray-800">Encuentra tus reservas</h1>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="flex justify-center mt-4">
+    <input v-model="searchQuery" @keyup.enter="searchReservations" type="text"
+      placeholder="Buscar por el número de reserva asignado" class="border rounded p-2 w-1/2" />
+    <button @click="searchReservations" class="ml-2 px-4 py-2 bg-blue-700 text-white rounded">Buscar</button>
+  </div>
+
+  <div>
+    <!-- Cargando Reservaciones -->
+    <div v-if="isLoadingReservations" class="text-center mt-4">Cargando reservaciones...</div>
+
+    <!-- Reservaciones Encontradas -->
+    <div v-else-if="reservations.length > 0" class="mt-4">
+      <h2 class="text-xl font-semibold text-center">Reservaciones</h2>
+      <ReservationCardList :reservations="reservations" @view-details="handleViewDetails" />
+    </div>
+
+    <!-- Sin Resultados -->
+    <div v-else-if="!isLoadingReservations && searchQuery">
+      <p class="text-center text-gray-500 mt-4">No se encontraron reservaciones.</p>
+    </div>
   </div>
 
   <!-- Tab Menu -->
   <div
-    class="flex flex-wrap items-center overflow-x-auto overflow-y-hidden py-10 justify-center bg-white text-gray-800"
-  >
-    <a
-      rel="noopener noreferrer"
-      href="#"
-      class="flex items-center flex-shrink-0 px-5 py-3 space-x-2text-gray-600"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="w-4 h-4"
-      >
-        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-      </svg>
-      <span>Marcadores</span>
-    </a>
-    <a
-      rel="noopener noreferrer"
-      href="#"
-      class="flex items-center flex-shrink-0 px-5 py-3 space-x-2 rounded-t-lg text-gray-900"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="w-4 h-4"
-      >
-        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-      </svg>
-      <span>Mapa interactivo</span>
-    </a>
-    <a
-      rel="noopener noreferrer"
-      href="#"
-      class="flex items-center flex-shrink-0 px-5 py-3 space-x-2 text-gray-600"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="w-4 h-4"
-      >
-        <polygon
-          points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
-        ></polygon>
-      </svg>
-      <span>Favoritos</span>
-    </a>
-    <a
-      rel="noopener noreferrer"
-      href="#"
-      class="flex items-center flex-shrink-0 px-5 py-3 space-x-2 text-gray-600"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="w-4 h-4"
-      >
-        <circle cx="12" cy="12" r="10"></circle>
-        <polygon
-          points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"
-        ></polygon>
-      </svg>
-      <span>Ubicación</span>
-    </a>
+    class="flex flex-wrap items-center overflow-x-auto overflow-y-hidden py-10 justify-center bg-white text-gray-800">
+    <!-- Links -->
   </div>
 
-  <div
-    class="flex justify-center items-center"
-    style="width: 100%; height: 400px"
-  >
-    <InteractiveMap
-      :center="[47.41322, -1.219482]"
-      :zoom="13"
-      class="w-full h-full"
-    />
+  <div class="max-w-full mt-4 mx-12 p-4 border border-gray-300 rounded-lg shadow-lg bg-white">
+    <div class="flex justify-center items-center" style="width: 100%; height: 400px">
+      <InteractiveMap :center="[47.41322, -1.219482]" :parkingLots="parkingLots" class="w-full h-full" />
+    </div>
   </div>
 
+  <!-- Parking lots List -->
   <div v-if="!parkingLots" class="text-center h-[500px]">
     <h1 class="text-xl">Cargando parqueaderos</h1>
     <p>Espere por favor</p>
   </div>
-
-  <!-- Parking lots List -->
   <ParkingLotList v-else :parkingLots="parkingLots" />
-
-  <ButtonPagination
-    :has-more-data="!!parkingLots && parkingLots.length < 10"
-    :is-first-page="page === 1"
-    :page="1"
-  />
+  <ButtonPagination :has-more-data="!!parkingLots && parkingLots.length < 10" :is-first-page="page === 1" :page="1" />
 </template>

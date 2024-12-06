@@ -24,10 +24,6 @@ export const useAuthStore = defineStore('auth', () => {
         return false
       }
 
-      // Log user role and ID for debugging purposes
-      console.log(`ID ROLE: ${loginResponse.user.id_role}`)
-      console.log(`ID USER: ${loginResponse.user.id}`)
-
       // Set user data and update auth status
       user.value = loginResponse.user
       userSession.value = loginResponse.user.email

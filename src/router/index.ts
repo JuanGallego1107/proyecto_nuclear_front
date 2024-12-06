@@ -1,6 +1,5 @@
 import { adminRoutes } from '@/modules/admin/routes'
 import { authRoutes } from '@/modules/auth/routes'
-import ParkingLotDetailView from '@/modules/parking_lots/views/ParkingLotDetailView.vue'
 import { parkingAdminRoutes } from '@/modules/parkingAdmin/routes'
 import ReservationLayout from '@/modules/reservation/layouts/ReservationLayout.vue'
 import { createRouter, createWebHistory } from 'vue-router'
@@ -24,13 +23,25 @@ const router = createRouter({
           name: 'home',
           component: () => import('@/modules/reservation/views/HomeView.vue'),
         },
+        // Route for reservation detail view
+        {
+          path: 'reservation-detail/:parkingId',
+          name: 'reservation-detail',
+          props: true,
+          component: () =>
+            import(
+              '@/modules/reservation/views/ReservationParkingDetailView.vue'
+            ),
+        },
+        // Route for payment_gateway
+        {
+          path: 'payment-gateway/:id?',
+          name: 'payment-gateway',
+          props: true,
+          component: () =>
+            import('@/modules/reservation/views/PaymentGatewayView.vue'),
+        },
       ],
-    },
-    // Route for reservation detail view
-    {
-      path: '/reservation-detail',
-      name: 'reservation-detail',
-      component: ParkingLotDetailView,
     },
     // Add authentication-related routes
     authRoutes,

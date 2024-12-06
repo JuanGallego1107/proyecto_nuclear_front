@@ -11,10 +11,7 @@
   </div>
 
   <!-- Form for updating reservation states -->
-  <form
-    @submit="onSubmit"
-    class="grid grid-cols-1 sm:grid-cols-2 bg-white px-5 gap-5"
-  >
+  <form @submit="onSubmit" class="grid grid-cols-1 sm:grid-cols-2 bg-white px-5 gap-5">
     <div class="first-col">
       <!-- First part of the form -->
       <div class="mb-4">
@@ -28,23 +25,12 @@
     <!-- Container for the submit button -->
     <div class="my-4 text-right">
       <!-- Submit button for saving the form data -->
-      <button
-        :disabled="isPending"
-        type="submit"
-        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      >
+      <button :disabled="isPending" type="submit"
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
         Guardar
       </button>
     </div>
   </form>
-
-  <!-- Additional container for displaying form values (for debugging or feedback) -->
-  <div class="grid grid-cls-2 mt-2">
-    <div class="bg-blue-200">
-      <!-- Display form values -->
-      {{ values }}
-    </div>
-  </div>
 </template>
 
 <style scoped>
@@ -52,6 +38,7 @@
 .form-label {
   @apply block text-gray-700 text-sm font-bold mb-2;
 }
+
 /* Styles for form inputs */
 .form-control {
   @apply shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none;
